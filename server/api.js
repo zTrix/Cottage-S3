@@ -2,6 +2,7 @@
 var Z    = require('./utils/zlog'),
     Db   = require('./db'),
     Step = require('step'),
+    Err  = require('./errcode'),
     QueryString = require('querystring');
 
 var postProcess = function (header, body, callback) {
@@ -26,32 +27,34 @@ var postProcess = function (header, body, callback) {
     );
 };
 
-var api = module.exports = {
-    register: function (callback) {
+function parse_input(req, callback) {
+    var input = '';
+    Step(
+        function () {
+            req.on('data', function (data) {
+                input += data;
+            });
+            req.on('end', this);
+        },
+
+        function () {
+            return QueryString.parse(input);
+        },
+
+        callback
+    );
+};
+
+function api_wrapper(api) {
+    return function(callback) {
         var req = this;
         Step(
             function () {
-                var input = '';
-                var next = this;
-                req.on('data', function (data) {
-                    input += data;
-                });
-                req.on('end', function () {
-                    next(null, QueryString.parse(input));
-                });
+                parse_input(req, this);
             },
-
-            function (err, param) {
-                if (param.email && param.password) {
-                    Db.register(param.email, param.password, this);
-                } else {
-                    return {
-                        err: 1,
-                        msg: 'wrong api parameters'
-                    }
-                }
-            },
-
+            
+            api,
+            
             function (err, data) {
                 if (err) {
                     callback(err);
@@ -59,17 +62,32 @@ var api = module.exports = {
                     postProcess({}, data, this);
                 }
             },
-            
+
             callback
         );
-    },
+    };
+};
 
-    login: function login(callback) {
-        var param = req;
-        Step(
-            
-        );
-    },
+var api = module.exports = {
+    register: api_wrapper(function (err, param) {
+        if (param.email && param.password) {
+            Db.register(param.email, param.password, this);
+        } else {
+            return Err.error(Err.INVALID_PARAM);
+        }
+    }),
+
+    login: api_wrapper(function login(err, param) {
+        if (err) {
+            this(err);
+            return;
+        }
+        if (param.email && param.password) {
+            Db.login(param.email, param.password, this);
+        } else {
+            return Err.error(Err.INVALID_PARAM);
+        }
+    }),
 
     index: function (callback) {
         Step(

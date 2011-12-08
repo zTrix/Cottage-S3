@@ -58,6 +58,40 @@ module.exports = {
 
             callback
         );
+    },
+
+    login: function login(email, password, callback) {
+        var users_collection;
+        Step(
+            function () {
+                db.collection('users', this);
+            },
+
+            function (err, _collection) {
+                users_collection = _collection;
+                users_collection.findOne({
+                    'email': email,
+                    'password': password
+                }, this);
+            },
+
+            function (err, doc) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (doc) {
+                    return {
+                        err: Err.NO_ERROR,
+                        msg: 'login success'
+                    };
+                } else {
+                    return Err.error(Err.WRONG_EMAIL_OR_PASSWORD);
+                }
+            },
+
+            callback
+        );
     }
 }
 
