@@ -26,7 +26,6 @@ var handleRoute = function (req, res, handler, match) {
                 stack: err.stack || arguments.callee || ''
             }
             res.writeHead(ret.code);
-            Z.e(ret.stack);
             res.write(JSON.stringify(ret, null, '    '));
             res.end();
             Z.i('[ ' + ret.code + ' ] ' + req.url);

@@ -19,12 +19,14 @@ db.open(function (err, db) {
 
 module.exports = {
     register: function (email, password, callback) {
+        var users_collection;
         Step(
             function open_collection() {
                 db.collection('users', this);
             },
 
             function find_dup(err, collection) {
+                users_collection = collection;
                 collection.findOne({'email': email}, this);
             },
 
@@ -34,11 +36,21 @@ module.exports = {
                     return;
                 }
                 if (doc) {
-                    Z.d(doc);
                     callback(null, {
                         err: Err.INVALID_PARAM,
                         msg: 'email already in use, please use another email'
                     });
+                    return;
+                }
+                users_collection.insert({
+                    'email': email,
+                    'password': password
+                }, this);
+            },
+
+            function (err, rs) {
+                if (err) {
+                    callback(err);
                     return;
                 }
                 return {err: Err.NO_ERROR, msg: 'no dup'};
