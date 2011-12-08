@@ -1,0 +1,3 @@
+[submodule "server/node_modules/step"]
+	path = server/node_modules/step
+	url = git://github.com/creationix/step.git
