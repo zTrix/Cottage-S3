@@ -70,6 +70,7 @@ module.exports = {
     login: function login(email, password, callback) {
         var users_collection;
         var token = Str.randomString();
+        var expire_time = 3600;
         Step(
             function () {
                 mongo.collection('users', this);
@@ -90,6 +91,7 @@ module.exports = {
                 }
                 if (doc) {
                     redis.set(token, email, this);
+                    redis.expire(token, expire_time);
                 } else {
                     callback(Err.error(Err.WRONG_EMAIL_OR_PASSWORD));
                 }
@@ -104,7 +106,8 @@ module.exports = {
                 return {
                     err: Err.NO_ERROR,
                     msg: 'login success',
-                    token: token
+                    token: token,
+                    expire: expire_time
                 };
             },
 
