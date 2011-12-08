@@ -1,7 +1,8 @@
 
 var Z    = require('./utils/zlog'),
     Db   = require('./db'),
-    Step = require('step');
+    Step = require('step'),
+    QueryString = require('querystring');
 
 var postProcess = function (header, body, callback) {
     Step(
@@ -27,9 +28,20 @@ var postProcess = function (header, body, callback) {
 
 var api = module.exports = {
     register: function (callback) {
-        var param = this;
+        var req = this;
         Step(
             function () {
+                var input = '';
+                var next = this;
+                req.on('data', function (data) {
+                    input += data;
+                });
+                req.on('end', function () {
+                    next(null, QueryString.parse(input));
+                });
+            },
+
+            function (err, param) {
                 if (param.email && param.password) {
                     Db.register(param.email, param.password, this);
                 } else {
@@ -49,6 +61,13 @@ var api = module.exports = {
             },
             
             callback
+        );
+    },
+
+    login: function login(callback) {
+        var param = req;
+        Step(
+            
         );
     },
 

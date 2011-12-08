@@ -14,6 +14,7 @@ var addRoute = function (regex, handler) {
 };
 
 addRoute(/^\/api\/register$/, api.register);
+addRoute(/^\/api\/login$/, api.login);
 addRoute(/^\/$/, api.index);
 addRoute(/^\/(.*)$/, api.notfound);
 
@@ -38,17 +39,7 @@ var handleRoute = function (req, res, handler, match) {
             Z.i('[ 200 ] ' + req.url);
         }
     };
-    if (req.method != 'POST') {
-        handler.apply(null, match.concat([callback]));
-    } else {
-        var body = '';
-        req.on('data', function (data) {
-            body += data;
-        });
-        req.on('end', function () {
-            handler.apply(require('querystring').parse(body), match.concat([callback]));
-        });
-    }
+    handler.apply(req, match.concat([callback]));
 };
 
 http.createServer(function(req, res) {
