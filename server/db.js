@@ -1,17 +1,24 @@
 
-var Db = require('mongodb').Db,
+var Mongo = require('mongodb').Db,
+    Redis = require('redis'),
     Connection = require('mongodb').Connection,
     Server = require('mongodb').Server,
     Step = require('step'),
     Z = require('./utils/zlog'),
+    Str = require('./utils/str'),
     Err = require('./errcode');
 
 var host = process.env['MONGO_NODE_DRIVER_HOST'] != null ? process.env['MONGO_NODE_DRIVER_HOST'] : 'localhost';
 var port = process.env['MONGO_NODE_DRIVER_PORT'] != null ? process.env['MONGO_NODE_DRIVER_PORT'] : Connection.DEFAULT_PORT;
 
-var db = new Db('CS3', new Server(host, port, {}), {native_parser: false});
+var mongo = new Mongo('CS3', new Server(host, port, {}), {native_parser: false});
+var redis = Redis.createClient();
 
-db.open(function (err, db) {
+redis.on('error', function (err) {
+    Z.e(err);
+});
+
+mongo.open(function (err, db) {
     if (err) {
         Z.e(err);
     }
@@ -22,7 +29,7 @@ module.exports = {
         var users_collection;
         Step(
             function open_collection() {
-                db.collection('users', this);
+                mongo.collection('users', this);
             },
 
             function find_dup(err, collection) {
@@ -62,9 +69,10 @@ module.exports = {
 
     login: function login(email, password, callback) {
         var users_collection;
+        var token = Str.randomString();
         Step(
             function () {
-                db.collection('users', this);
+                mongo.collection('users', this);
             },
 
             function (err, _collection) {
@@ -81,13 +89,23 @@ module.exports = {
                     return;
                 }
                 if (doc) {
-                    return {
-                        err: Err.NO_ERROR,
-                        msg: 'login success'
-                    };
+                    redis.set(token, email, this);
                 } else {
-                    return Err.error(Err.WRONG_EMAIL_OR_PASSWORD);
+                    callback(Err.error(Err.WRONG_EMAIL_OR_PASSWORD));
                 }
+            },
+
+            function (err, rs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                Z.d(rs);
+                return {
+                    err: Err.NO_ERROR,
+                    msg: 'login success',
+                    token: token
+                };
             },
 
             callback
