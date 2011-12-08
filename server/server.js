@@ -2,7 +2,7 @@
 var http = require('http'),
     url  = require('url'),
     api  = require('./api'),
-    zlog = require('./utils/zlog');
+    Z = require('./utils/zlog');
 
 var routes = [];
 
@@ -18,22 +18,38 @@ addRoute(/^\/$/, api.index);
 addRoute(/^\/(.*)$/, api.notfound);
 
 var handleRoute = function (req, res, handler, match) {
-    var callback = function (err, data) {
+    var callback = function callback(err, data) {
         if (err) {
-            res.writeHead(err.code);
-            res.write(err.msg);
+            var ret = {
+                code: err.code || 500,
+                msg: err.msg || '' + err,
+                stack: err.stack || arguments.callee || ''
+            }
+            res.writeHead(ret.code);
+            Z.e(ret.stack);
+            res.write(JSON.stringify(ret, null, '    '));
             res.end();
-            zlog.i('[ ' + err.code + ' ] ' + req.url);
+            Z.i('[ ' + ret.code + ' ] ' + req.url);
         } else {
             res.writeHead(200, data.header);
             if (data.body) {
                 res.write(data.body);
             }
             res.end();
-            zlog.i('[ 200 ] ' + req.url);
+            Z.i('[ 200 ] ' + req.url);
         }
     };
-    handler.apply(req, match.concat([callback]));
+    if (req.method != 'POST') {
+        handler.apply(null, match.concat([callback]));
+    } else {
+        var body = '';
+        req.on('data', function (data) {
+            body += data;
+        });
+        req.on('end', function () {
+            handler.apply(require('querystring').parse(body), match.concat([callback]));
+        });
+    }
 };
 
 http.createServer(function(req, res) {
@@ -48,7 +64,7 @@ http.createServer(function(req, res) {
         }
     }
     res.writeHead(404);
-    res.write('not found');
+    res.write(JSON.stringify({msg: 'not found', err: 1}, null, '    '));
     res.end();
 }).listen(80);
 

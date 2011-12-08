@@ -1,29 +1,51 @@
 
-var zlog = require('./utils/zlog'),
-    step = require('step');
+var Z    = require('./utils/zlog'),
+    Db   = require('./db'),
+    Step = require('step');
 
 var postProcess = function (header, body, callback) {
-    step(
-        function buildHeaders() {
+    Step(
+        function () {
             header["Content-Type"] = "application/json; charset=utf-8";
             var date = new Date().toUTCString();
             header["Date"] = date;
             header["Server"] = 'Cottage-S3 on node.js';
+            if (!body) {
+                body = {};
+            }
+            body = JSON.stringify(body, null, '    ');
             header["Content-Length"] = body.length;
             return {
                 header: header,
                 body: body
-            };
+            }
         },
+
         callback
     );
 };
 
 var api = module.exports = {
     register: function (callback) {
-        step(
+        var param = this;
+        Step(
             function () {
-                zlog.d("register");
+                if (param.email && param.password) {
+                    Db.register(param.email, param.password, this);
+                } else {
+                    return {
+                        err: 1,
+                        msg: 'wrong api parameters'
+                    }
+                }
+            },
+
+            function (err, data) {
+                if (err) {
+                    callback(err);
+                } else {
+                    postProcess({}, data, this);
+                }
             },
             
             callback
@@ -31,9 +53,9 @@ var api = module.exports = {
     },
 
     index: function (callback) {
-        step(
+        Step(
             function () {
-                postProcess({}, 'welcome to use Cottage-S3', this);
+                postProcess({}, {err:0, msg:'welcome to use Cottage-S3\n'}, this);
             },
             callback
         );
@@ -42,7 +64,7 @@ var api = module.exports = {
     notfound: function (path, callback) {
         callback({
             code: 404,
-            msg: path + ' not found'
+            msg: path + ' not found\n'
         });
     }
 };

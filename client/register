@@ -1,0 +1,5 @@
+#!/bin/bash
+
+server_ip=`cat server_ip`
+
+curl -d email=test_reg_$RANDOM@test.com -d password=password http://$server_ip/api/register 2>/dev/null | node parse_json.js
