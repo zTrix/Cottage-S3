@@ -15,21 +15,23 @@ var addRoute = function (regex, handler) {
 
 addRoute(/^\/api\/register$/, api.register);
 addRoute(/^\/api\/login$/, api.login);
+addRoute(/^\/api\/upload[?.*]?$/, api.upload);
 addRoute(/^\/$/, api.index);
 addRoute(/^\/(.*)$/, api.notfound);
 
 var handleRoute = function (req, res, handler, match) {
     var callback = function callback(err, data) {
         if (err) {
+            var code = err.code || 500;
             var ret = {
-                code: err.code || 500,
+                err: err.err,
                 msg: err.msg || '' + err,
                 stack: err.stack || arguments.callee || ''
             }
-            res.writeHead(ret.code);
+            res.writeHead(code);
             res.write(JSON.stringify(ret, null, '    '));
             res.end();
-            Z.i('[ ' + ret.code + ' ] ' + req.url);
+            Z.i('[ ' + code + ' ] ' + req.url);
         } else {
             res.writeHead(200, data.header);
             if (data.body) {

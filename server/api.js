@@ -89,6 +89,18 @@ var api = module.exports = {
         }
     }),
 
+    upload: function (callback) {
+        var req = this;
+        var input = '';
+        req.on('data', function (data) {
+            input += data;
+        });
+        req.on('end', function () {
+            Z.d(input);
+        });
+        callback(Err.error(Err.INVALID_PARAM));
+    },
+
     index: function (callback) {
         Step(
             function () {

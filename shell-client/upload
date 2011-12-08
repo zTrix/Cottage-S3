@@ -1,0 +1,28 @@
+#!/bin/bash
+
+server_ip=`cat server_ip`
+
+if [[ "x$1" != "x" ]];then
+    token=$1
+else
+    echo "$0 <token> <file_path>"
+    exit
+fi
+
+if [[ "x$2" != "x" ]];then
+    path=$2
+else
+    path=/tmp/test_upload
+    echo test_upload > $path
+    echo "missing upload path, using default path: $path"
+fi
+
+if [[ "x$3" != "x" ]];then
+    key=$3
+else
+    echo "missing key, using default key: _key"
+    key=_key
+fi
+
+curl -H token=$token -F "file=@$path" http://$server_ip/api/upload?key=$key 2>/dev/null | node parse_json.js
+

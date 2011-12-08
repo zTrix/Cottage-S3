@@ -102,7 +102,6 @@ module.exports = {
                     callback(err);
                     return;
                 }
-                Z.d(rs);
                 return {
                     err: Err.NO_ERROR,
                     msg: 'login success',
