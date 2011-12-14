@@ -28,6 +28,19 @@
  - token: the token to use for later upload or fetch
  - expire: token expire time from now, in seconds
 
+## upload
+**method**: POST
+
+**param**: param should be set in HTTP header
+ 
+ - token: access token returned by login
+ - key: the key to store the object
+
+**return**:
+ 
+ - err:
+ - msg:
+
 # Error Code
 
  - `0` no error
