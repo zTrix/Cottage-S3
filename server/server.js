@@ -2,6 +2,7 @@
 var http = require('http'),
     url  = require('url'),
     api  = require('./api'),
+    Err  = require('./errcode'),
     Z = require('./utils/zlog');
 
 var routes = [];
@@ -24,7 +25,7 @@ var handleRoute = function (req, res, handler, match) {
         if (err) {
             var code = err.code || 500;
             var ret = {
-                err: err.err || Err.UNKNOWN_ERR.err,
+                err: err.err || Err.UNKNOWN_ERROR.err,
                 msg: err.msg || '' + err,
                 stack: err.stack || arguments.callee || ''
             }

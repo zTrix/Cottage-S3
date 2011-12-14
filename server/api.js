@@ -71,7 +71,7 @@ var api = module.exports = {
         var req = this;
         var headers = req.headers;
         if (!headers.token || !headers.key) {
-            callback(Err.INVALID_PARAM);
+            callback(null, Err.INVALID_PARAM);
             return;
         }
         Z.d(headers.token);
@@ -93,7 +93,7 @@ var api = module.exports = {
     notfound: function (path, callback) {
         callback({
             code: 404,
-            msg: path + ' not found\n'
+            msg: path + ' not found'
         });
     }
 };
