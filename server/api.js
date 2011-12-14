@@ -5,28 +5,6 @@ var Z    = require('./utils/zlog'),
     Err  = require('./errcode'),
     QueryString = require('querystring');
 
-var postProcess = function (header, body, callback) {
-    Step(
-        function () {
-            header["Content-Type"] = "application/json; charset=utf-8";
-            var date = new Date().toUTCString();
-            header["Date"] = date;
-            header["Server"] = 'Cottage-S3 on node.js';
-            if (!body) {
-                body = {};
-            }
-            body = JSON.stringify(body, null, '');
-            header["Content-Length"] = body.length;
-            return {
-                header: header,
-                body: body
-            }
-        },
-
-        callback
-    );
-};
-
 function parse_input(req, callback) {
     var input = '';
     Step(
@@ -59,7 +37,7 @@ function api_wrapper(api) {
                 if (err) {
                     callback(err);
                 } else {
-                    postProcess({}, data, this);
+                    return data;
                 }
             },
 
@@ -105,16 +83,11 @@ var api = module.exports = {
         req.on('end', function () {
             Z.d(input);
         });
-        callback(Err.NO_ERROR);
+        callback(null, Err.NO_ERROR);
     },
 
     index: function (callback) {
-        Step(
-            function () {
-                postProcess({}, Err.NO_ERROR.my_msg('welcome to use Cottage-S3'), this);
-            },
-            callback
-        );
+        callback(null, Err.NO_ERROR.my_msg('welcome to use Cottage-S3'));
     },
 
     notfound: function (path, callback) {

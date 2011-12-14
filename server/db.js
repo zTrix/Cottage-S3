@@ -109,6 +109,10 @@ module.exports = {
 
             callback
         );
+    },
+
+    check_token: function check_token() {
+
     }
 }
 

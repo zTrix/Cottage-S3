@@ -24,7 +24,7 @@ var handleRoute = function (req, res, handler, match) {
         if (err) {
             var code = err.code || 500;
             var ret = {
-                err: err.err,
+                err: err.err || Err.UNKNOWN_ERR.err,
                 msg: err.msg || '' + err,
                 stack: err.stack || arguments.callee || ''
             }
@@ -33,10 +33,30 @@ var handleRoute = function (req, res, handler, match) {
             res.end();
             Z.i('[ ' + code + ' ] ' + req.url);
         } else {
-            res.writeHead(200, data.header);
-            if (data.body) {
-                res.write(data.body);
+            var header = {};
+            var body;
+            if (data.header && data.body) {
+                header = data.header || {};
+                body = data.body || {};
+            } else {
+                body = data || {};
             }
+            header['Date'] = new Date().toUTCString();
+            header['Server'] = 'Cottage-S3 on node.js';
+            if (!header['Content-Type']) {      // content type not provided, we must guest one
+                if (body instanceof Buffer) {
+                    header['Content-Type'] = "application/octet-string";
+                } else {
+                    header['Content-Type'] = "application/json; charset=utf-8";
+                }
+            }
+            if (body instanceof Buffer) {
+            } else {
+                body = JSON.stringify(body, null, '');
+            }
+            header['Content-Length'] = body.length;
+            res.writeHead(200, header);
+            res.write(body);
             res.end();
             Z.i('[ 200 ] ' + req.url);
         }
