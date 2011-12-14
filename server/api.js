@@ -3,6 +3,7 @@ var Z    = require('./utils/zlog'),
     Db   = require('./db'),
     Step = require('step'),
     Err  = require('./errcode'),
+    StreamBuffer = require('./utils/streambuffer'),
     QueryString = require('querystring');
 
 function parse_input(req, callback) {
@@ -69,21 +70,44 @@ var api = module.exports = {
 
     upload: function (callback) {
         var req = this;
+        new StreamBuffer(req);
         var headers = req.headers;
         if (!headers.token || !headers.key) {
             callback(null, Err.INVALID_PARAM);
             return;
         }
-        Z.d(headers.token);
-        Z.d(headers.key);
-        var input = '';
-        req.on('data', function (data) {
-            input += data;
-        });
-        req.on('end', function () {
-            Z.d(input);
-        });
-        callback(null, Err.NO_ERROR);
+        var user_account;
+        Step(
+            function () {
+                Db.check_token(headers.token, this);
+            },
+
+            function (err, email) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (!email) {
+                    callback(null, Err.INVALID_REQUEST.my_msg('wrong token'));
+                    return;
+                }
+                user_account = email;
+                Db.set(email, headers.key, '', this);
+            },
+
+            function () {
+                var next = this;
+                req.streambuffer.ondata(function (data) {
+                    Db.append(user_account, headers.key, data, function () {});
+                });
+                req.streambuffer.onend(function () {
+                    Z.i("upload success for " + user_account + " with key = " + headers.key);
+                    next(null, Err.NO_ERROR);
+                });
+            },
+
+            callback
+        );
     },
 
     index: function (callback) {

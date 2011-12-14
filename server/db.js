@@ -111,8 +111,16 @@ module.exports = {
         );
     },
 
-    check_token: function check_token() {
+    check_token: function check_token(token, callback) {
+        redis.get(token, callback);
+    },
 
+    set: function(user, key, data, callback) {
+        redis.set(user + ':' + key, data, callback);
+    },
+
+    append: function (user, key, data, callback) {
+        redis.append(user + ':' + key, data, callback);
     }
 }
 
