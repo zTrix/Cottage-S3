@@ -43,10 +43,7 @@ module.exports = {
                     return;
                 }
                 if (doc) {
-                    callback(null, {
-                        err: Err.INVALID_PARAM,
-                        msg: 'email already in use, please use another email'
-                    });
+                    callback(null, Err.INVALID_REQUEST.my_msg('email already in use, please use another email'));
                     return;
                 }
                 users_collection.insert({
@@ -60,7 +57,7 @@ module.exports = {
                     callback(err);
                     return;
                 }
-                return {err: Err.NO_ERROR, msg: 'no dup'};
+                return Err.NO_ERROR;
             },
 
             callback
@@ -93,7 +90,7 @@ module.exports = {
                     redis.set(token, email, this);
                     redis.expire(token, expire_time);
                 } else {
-                    callback(Err.error(Err.WRONG_EMAIL_OR_PASSWORD));
+                    callback(Err.WRONG_EMAIL_OR_PASSWORD);
                 }
             },
 
@@ -103,7 +100,7 @@ module.exports = {
                     return;
                 }
                 return {
-                    err: Err.NO_ERROR,
+                    err: Err.NO_ERROR.err,
                     msg: 'login success',
                     token: token,
                     expire: expire_time

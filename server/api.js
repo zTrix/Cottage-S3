@@ -15,7 +15,7 @@ var postProcess = function (header, body, callback) {
             if (!body) {
                 body = {};
             }
-            body = JSON.stringify(body, null, '    ');
+            body = JSON.stringify(body, null, '');
             header["Content-Length"] = body.length;
             return {
                 header: header,
@@ -73,7 +73,7 @@ var api = module.exports = {
         if (param.email && param.password) {
             Db.register(param.email, param.password, this);
         } else {
-            return Err.error(Err.INVALID_PARAM);
+            return Err.INVALID_PARAM;
         }
     }),
 
@@ -85,12 +85,19 @@ var api = module.exports = {
         if (param.email && param.password) {
             Db.login(param.email, param.password, this);
         } else {
-            return Err.error(Err.INVALID_PARAM);
+            return Err.INVALID_PARAM;
         }
     }),
 
     upload: function (callback) {
         var req = this;
+        var headers = req.headers;
+        if (!headers.token || !headers.key) {
+            callback(Err.INVALID_PARAM);
+            return;
+        }
+        Z.d(headers.token);
+        Z.d(headers.key);
         var input = '';
         req.on('data', function (data) {
             input += data;
@@ -98,13 +105,13 @@ var api = module.exports = {
         req.on('end', function () {
             Z.d(input);
         });
-        callback(Err.error(Err.INVALID_PARAM));
+        callback(Err.NO_ERROR);
     },
 
     index: function (callback) {
         Step(
             function () {
-                postProcess({}, {err:0, msg:'welcome to use Cottage-S3\n'}, this);
+                postProcess({}, Err.NO_ERROR.my_msg('welcome to use Cottage-S3'), this);
             },
             callback
         );

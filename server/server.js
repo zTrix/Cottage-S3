@@ -29,7 +29,7 @@ var handleRoute = function (req, res, handler, match) {
                 stack: err.stack || arguments.callee || ''
             }
             res.writeHead(code);
-            res.write(JSON.stringify(ret, null, '    '));
+            res.write(JSON.stringify(ret, null, ''));
             res.end();
             Z.i('[ ' + code + ' ] ' + req.url);
         } else {
