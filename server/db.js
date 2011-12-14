@@ -43,7 +43,7 @@ module.exports = {
                     return;
                 }
                 if (doc) {
-                    callback(null, Err.INVALID_REQUEST.my_msg('email already in use, please use another email'));
+                    callback(null, Err.INVALID_REQUEST('email already in use, please use another email'));
                     return;
                 }
                 users_collection.insert({

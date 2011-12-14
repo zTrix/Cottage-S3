@@ -25,18 +25,14 @@ function get_res_code(code) {
     return res_code;
 }
 
-for (var i in errcode) {
-    module.exports[i] = {
-        //code: get_res_code(errcode[i]),
-        err: errcode[i],
-        msg: err_desc[i],
-        my_msg: function (new_msg) {
-            return {
-                //code: this.code,
-                err: this.err,
-                msg: new_msg || this.msg
-            }
+Object.keys(errcode).forEach(function(i, e) {
+    module.exports[i] = function (new_msg) {
+        return {
+            err: e,
+            msg: new_msg || this.msg
         }
     };
-}
+    module.exports[i]['err'] = errcode[i];
+    module.exports[i]['msg'] = err_desc[i];
+});
 

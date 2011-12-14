@@ -88,7 +88,7 @@ var api = module.exports = {
                     return;
                 }
                 if (!email) {
-                    callback(null, Err.INVALID_REQUEST.my_msg('wrong token'));
+                    callback(null, Err.INVALID_REQUEST('wrong token'));
                     return;
                 }
                 user_account = email;
@@ -110,8 +110,18 @@ var api = module.exports = {
         );
     },
 
+    fetch: api_wrapper(function(err, param) {
+        if (err) {
+            this(err);
+            return;
+        }
+        if (!param.token || !param.email) {
+            return Err.INVALID_PARAM("invalid param: no token or email");
+        }
+    }),
+
     index: function (callback) {
-        callback(null, Err.NO_ERROR.my_msg('welcome to use Cottage-S3'));
+        callback(null, Err.NO_ERROR('welcome to use Cottage-S3'));
     },
 
     notfound: function (path, callback) {

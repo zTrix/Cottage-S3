@@ -17,6 +17,7 @@ var addRoute = function (regex, handler) {
 addRoute(/^\/api\/register$/, api.register);
 addRoute(/^\/api\/login$/, api.login);
 addRoute(/^\/api\/upload[?.*]?$/, api.upload);
+addRoute(/^\/api\/fetch[?.*]?$/, api.fetch);
 addRoute(/^\/$/, api.index);
 addRoute(/^\/(.*)$/, api.notfound);
 
@@ -41,6 +42,13 @@ var handleRoute = function (req, res, handler, match) {
                 body = data.body || {};
             } else {
                 body = data || {};
+            }
+            if (typeof body == 'function') {
+                var tmp = {};
+                for (var i in body) {
+                    tmp[i] = body[i];
+                }
+                body = tmp;
             }
             header['Date'] = new Date().toUTCString();
             header['Server'] = 'Cottage-S3 on node.js';
