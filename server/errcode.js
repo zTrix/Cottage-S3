@@ -25,14 +25,14 @@ function get_res_code(code) {
     return res_code;
 }
 
-Object.keys(errcode).forEach(function(i, e) {
-    module.exports[i] = function (new_msg) {
+Object.keys(errcode).forEach(function(k, i) {
+    module.exports[k] = function (new_msg) {
         return {
-            err: e,
+            err: errcode[k],
             msg: new_msg || this.msg
         }
     };
-    module.exports[i]['err'] = errcode[i];
-    module.exports[i]['msg'] = err_desc[i];
+    module.exports[k]['err'] = errcode[k];
+    module.exports[k]['msg'] = err_desc[k];
 });
 
