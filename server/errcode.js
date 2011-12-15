@@ -15,15 +15,6 @@ var err_desc = {
     INVALID_REQUEST: 'invalid request'
 };
 
-function get_res_code(code) {
-    var res_code = 200;
-    if (code > errcode.INVALID_PARAM && code < errcode.NO_ERROR) {
-        res_code = 500;
-    } else if (code <= errcode.INVALID_PARAM) {
-        res_code = 400;
-    }
-    return res_code;
-}
 
 Object.keys(errcode).forEach(function(k, i) {
     module.exports[k] = function (new_msg) {
@@ -36,3 +27,15 @@ Object.keys(errcode).forEach(function(k, i) {
     module.exports[k]['msg'] = err_desc[k];
 });
 
+module.exports['get_res_code'] = function get_res_code(code) {
+    if (code == null || code == undefined) {
+        return null;
+    }
+    var res_code = 200;
+    if (code > errcode.INVALID_PARAM && code < errcode.NO_ERROR) {
+        res_code = 500;
+    } else if (code <= errcode.INVALID_PARAM) {
+        res_code = 400;
+    }
+    return res_code;
+}

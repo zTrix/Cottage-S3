@@ -24,12 +24,12 @@ addRoute(/^\/(.*)$/, api.notfound);
 var handleRoute = function (req, res, handler, match) {
     var callback = function callback(err, data) {
         if (err) {
-            var code = err.code || 500;
+            var code = err.code || Err.get_res_code(err.err) || 500;
             var ret = {
                 err: err.err || Err.UNKNOWN_ERROR.err,
-                msg: err.msg || '' + err,
-                stack: err.stack || arguments.callee || ''
+                msg: err.msg || '' + err
             }
+            Z.w(err.stack || arguments.callee);
             res.writeHead(code);
             res.write(JSON.stringify(ret, null, ''));
             res.end();
@@ -41,7 +41,7 @@ var handleRoute = function (req, res, handler, match) {
                 for (var i in data.header) {
                     header[i] = data.header[i];
                 }
-                body = data.body || {};
+                body = data.body;
             } else {
                 body = data || {};
             }
@@ -57,13 +57,18 @@ var handleRoute = function (req, res, handler, match) {
             if (!header['Content-Type']) {      // content type not provided, we must guest one
                 if (body instanceof Buffer) {
                     header['Content-Type'] = "application/octet-string";
-                } else {
+                } else if (typeof body == 'object') {
                     header['Content-Type'] = "application/json; charset=utf-8";
+                } else {
+                    header['Content-Type'] = "application/octet-string";
                 }
             }
             if (body instanceof Buffer) {
-            } else {
+
+            } else if (typeof body == 'object') {
                 body = JSON.stringify(body, null, '');
+            } else if (typeof body == 'number') {
+                body = '' + body;
             }
             header['Content-Length'] = body.length;
             res.writeHead(200, header);

@@ -116,10 +116,46 @@ var api = module.exports = {
         if (!headers.token || !headers.key) {
             return Err.INVALID_PARAM("invalid param: no token or key");
         }
-        callback(null, {
-            header: Err.NO_ERROR,
-            body: new Buffer(0)
-        });
+        var user_account;
+        Step(
+            function () {
+                Db.check_token(headers.token, this);
+            },
+            
+            function(err, email) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (!email) {
+                    callback(null, {
+                        header: Err.INVALID_REQUEST('wrong token'),
+                        body: new Buffer(0)
+                    });
+                    return;
+                }
+                user_account = email;
+                Db.get(email, headers.key, this);
+            },
+
+            function(err, buffer) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (!buffer) {
+                    callback(null, {
+                        header: Err.INVALID_REQUEST('no data found for key ' + headers.key),
+                        body: new Buffer(0)
+                    });
+                    return;
+                }
+                callback(null, {
+                    header: Err.NO_ERROR,
+                    body: buffer
+                });
+            }
+        );
     },
 
     index: function (callback) {

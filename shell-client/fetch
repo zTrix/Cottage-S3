@@ -7,24 +7,28 @@ tmp_header=/tmp/cs3_tmp_header
 if [[ "x$1" != "x" ]];then
     token=$1
 else
-    echo "$0 <token> <file_path> <key>"
+    echo "$0 <token> <key> <file_path>"
     exit
 fi
 
-if [[ "x$2" != "x" ]];then
-    path=$2
+if [[ "x$3" != "x" ]];then
+    path=$3
 else
     path=/tmp/test_fetch
     echo "missing upload path, using default path: $path"
 fi
 
-if [[ "x$3" != "x" ]];then
-    key=$3
+if [[ "x$2" != "x" ]];then
+    key=$2
 else
     echo "missing key, using default key: _key"
     key=_key
 fi
 
-curl -D $tmp_header -H "token:$token" -H "key:$key" http://$server_ip/api/fetch 2>/dev/null | node parse_json.js
+curl -D $tmp_header -H "token:$token" -H "key:$key" http://$server_ip/api/fetch > $path 2>/dev/null
+
+echo "file saved to $path"
+
+echo
 
 awk -F':' '/err|msg/{print $1 ":\n  ",$2}' $tmp_header
