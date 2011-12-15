@@ -38,7 +38,9 @@ var handleRoute = function (req, res, handler, match) {
             var header = {};
             var body;
             if (data.header && data.body) {
-                header = data.header || {};
+                for (var i in data.header) {
+                    header[i] = data.header[i];
+                }
                 body = data.body || {};
             } else {
                 body = data || {};
