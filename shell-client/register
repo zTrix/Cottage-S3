@@ -15,4 +15,6 @@ fi
 
 echo register account: $email, $password
 
+echo 
+
 curl -d email=$email -d password=$password http://$server_ip/api/register 2>/dev/null | node parse_json.js

@@ -2,5 +2,7 @@
 
 server_ip=`cat server_ip`
 
+echo
+
 curl http://$server_ip/ 2>/dev/null | node parse_json.js
 
