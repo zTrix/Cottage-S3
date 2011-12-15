@@ -14,6 +14,18 @@ var port = process.env['MONGO_NODE_DRIVER_PORT'] != null ? process.env['MONGO_NO
 var mongo = new Mongo('CS3', new Server(host, port, {}), {native_parser: false});
 var redis = Redis.createClient();
 
+function user_key(u) {
+    return 'user:' + u;
+}
+
+function token_key(t) {
+    return 'token:' + t;
+}
+
+function file_key(u, f) {
+    return user_key(u) + ':' + f;
+}
+
 redis.on('error', function (err) {
     Z.e(err);
 });
@@ -87,8 +99,8 @@ module.exports = {
                     return;
                 }
                 if (doc) {
-                    redis.set(token, email, this);
-                    redis.expire(token, expire_time);
+                    redis.set(token_key(token), email, this);
+                    redis.expire(token_key(token), expire_time);
                 } else {
                     callback(Err.WRONG_EMAIL_OR_PASSWORD);
                 }
@@ -112,15 +124,15 @@ module.exports = {
     },
 
     check_token: function check_token(token, callback) {
-        redis.get(token, callback);
+        redis.get(token_key(token), callback);
     },
 
     set: function(user, key, data, callback) {
-        redis.set(user + ':' + key, data, callback);
+        redis.set(file_key(user, key), data, callback);
     },
 
     append: function (user, key, data, callback) {
-        redis.append(user + ':' + key, data, callback);
+        redis.append(file_key(user, key), data, callback);
     }
 }
 

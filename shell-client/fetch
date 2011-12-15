@@ -2,6 +2,8 @@
 
 server_ip=`cat server_ip`
 
+tmp_header=/tmp/cs3_tmp_header
+
 if [[ "x$1" != "x" ]];then
     token=$1
 else
@@ -12,8 +14,7 @@ fi
 if [[ "x$2" != "x" ]];then
     path=$2
 else
-    path=/tmp/test_upload
-    echo test_upload_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx > $path
+    path=/tmp/test_fetch
     echo "missing upload path, using default path: $path"
 fi
 
@@ -24,7 +25,6 @@ else
     key=_key
 fi
 
-echo
+curl -D $tmp_header -H "token:$token" -H "key:$key" http://$server_ip/api/fetch 2>/dev/null | node parse_json.js
 
-curl -H "token:$token" -H "key:$key" --data-binary "@$path" http://$server_ip/api/upload 2>/dev/null | node parse_json.js
-
+awk -F':' '/err|msg/{print $1 ":\n  ",$2}' $tmp_header

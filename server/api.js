@@ -110,15 +110,17 @@ var api = module.exports = {
         );
     },
 
-    fetch: api_wrapper(function(err, param) {
-        if (err) {
-            this(err);
-            return;
+    fetch: function fetch(callback) {
+        var req = this;
+        var headers = req.headers;
+        if (!headers.token || !headers.key) {
+            return Err.INVALID_PARAM("invalid param: no token or key");
         }
-        if (!param.token || !param.email) {
-            return Err.INVALID_PARAM("invalid param: no token or email");
-        }
-    }),
+        callback(null, {
+            header: Err.NO_ERROR,
+            body: new Buffer(0)
+        });
+    },
 
     index: function (callback) {
         callback(null, Err.NO_ERROR('welcome to use Cottage-S3'));
