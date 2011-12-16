@@ -156,7 +156,7 @@ var api = module.exports = {
             return;
         }
         var user_account;
-        var ori_space = 0, ori_size = 0, new_size = 0;
+        var ori_space = 0, new_size = 0;
         Step(
             function () {
                 Db.check_token(headers.token, this);
@@ -177,8 +177,8 @@ var api = module.exports = {
             },
 
             function (err, size, space) {
-                ori_space = space;
-                ori_size = size;
+                ori_space = +space;
+                ori_space += size;
                 Db.set(user_account, headers.key, '', this);
             },
 
@@ -188,19 +188,35 @@ var api = module.exports = {
                     return;
                 }
                 var next = this;
+                var returned = false;
                 req.streambuffer.ondata(function (data) {
+                    if (returned) {
+                        return;
+                    }
                     new_size += data.length;
+                    if (ori_space < data.length) {
+                        returned = true;
+                        next(Err.INVALID_REQUEST('space limit exceeded'));
+                        return;
+                    }
+                    ori_space -= data.length;
                     Db.append(user_account, headers.key, data, function () {});
                 });
                 req.streambuffer.onend(function () {
-                    Z.i("upload success for " + user_account + " with key = " + headers.key + ", size = " + new_size);
-                    next(null);
+                    if (!returned) {
+                        Z.i("upload success for " + user_account + " with key = " + headers.key + ", size = " + new_size);
+                        next();
+                    }
                 });
             },
 
             function (err) {
-                ori_space = +ori_space + ori_size - new_size;
-                Db.set_space(user_account, ori_space, this);
+                if (err) {
+                    Db.set_space(user_account, ori_space, function(){});
+                    callback(null, err);
+                } else {
+                    Db.set_space(user_account, ori_space, this);
+                }
             },
 
             function (err, new_len) {
