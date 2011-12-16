@@ -137,6 +137,10 @@ module.exports = {
 
     append: function (user, key, data, callback) {
         redis.append(file_key(user, key), data, callback);
+    },
+
+    remove: function(user, key, callback) {
+        redis.del(file_key(user, key), callback);
     }
 }
 

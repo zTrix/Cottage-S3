@@ -68,6 +68,41 @@ var api = module.exports = {
         }
     }),
 
+    remove: api_wrapper(function (err, param) {
+        if (err) {
+            this(err);
+            return;
+        }
+        if (!param.token || !param.key) {
+            return Err.INVALID_PARAM;
+        }
+        var callback = this;
+        var user_account;
+        Step(
+            function () {
+                Db.check_token(param.token, this);
+            },
+
+            function (err, email) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (!email) {
+                    callback(null, Err.INVALID_REQUEST('wrong token'));
+                    return;
+                }
+                user_account = email;
+                Db.remove(email, param.key, this);
+            },
+
+            function (err, data) {
+                Z.d(err, data);
+                callback(null, Err.NO_ERROR);
+            }
+        );
+    }),
+
     upload: function (callback) {
         var req = this;
         new StreamBuffer(req);

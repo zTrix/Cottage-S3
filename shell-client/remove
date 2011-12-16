@@ -1,0 +1,22 @@
+#!/bin/bash
+
+server_ip=`cat server_ip`
+
+if [[ "x$1" != "x" ]];then
+    token=$1
+else
+    echo "$0 <token> <key>"
+    exit
+fi
+
+if [[ "x$2" != "x" ]];then
+    key=$2
+else
+    echo "missing key, using default key: _key"
+    key=_key
+fi
+
+echo
+
+curl -d token=$token -d key=$key http://$server_ip/api/remove 2>/dev/null | node parse_json.js
+
