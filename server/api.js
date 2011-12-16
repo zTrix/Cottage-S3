@@ -145,6 +145,7 @@ var api = module.exports = {
             return;
         }
         var user_account;
+        var ori_space = 0, ori_size = 0, new_size = 0;
         Step(
             function () {
                 Db.check_token(headers.token, this);
@@ -160,18 +161,44 @@ var api = module.exports = {
                     return;
                 }
                 user_account = email;
-                Db.set(email, headers.key, '', this);
+                Db.strlen(email, headers.key, this.parallel());
+                Db.space(email, this.parallel());
             },
 
-            function () {
+            function (err, size, space) {
+                ori_space = space;
+                ori_size = size;
+                Db.set(user_account, headers.key, '', this);
+            },
+
+            function (err) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
                 var next = this;
                 req.streambuffer.ondata(function (data) {
+                    new_size += data.length;
                     Db.append(user_account, headers.key, data, function () {});
                 });
                 req.streambuffer.onend(function () {
-                    Z.i("upload success for " + user_account + " with key = " + headers.key);
-                    next(null, Err.NO_ERROR);
+                    Z.i("upload success for " + user_account + " with key = " + headers.key + ", size = " + new_size);
+                    next(null);
                 });
+            },
+
+            function (err) {
+                ori_space = +ori_space + ori_size - new_size;
+                Db.set_space(user_account, ori_space, this);
+            },
+
+            function (err, new_len) {
+                return {
+                    err: Err.NO_ERROR.err,
+                    msg: 'success',
+                    size: new_size,
+                    space: ori_space
+                }
             },
 
             callback

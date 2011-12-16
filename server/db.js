@@ -33,7 +33,7 @@ module.exports = {
         Step(
 
             function find_dup() {
-                redis.get(user_key(email), this);
+                redis.exists(user_key(email), this);
             },
 
             function (err, account) {
@@ -82,8 +82,7 @@ module.exports = {
                 if (!account) {
                     callback(null, Err.INVALID_REQUEST('no such account'));
                 } else if (account == password) {
-                    redis.set(token_key(token), email, this);
-                    redis.expire(token_key(token), expire_time);
+                    redis.setex(token_key(token), expire_time, email, this);
                 } else {
                     callback(null, Err.INVALID_REQUEST('wrong email or password'));
                 }
@@ -128,6 +127,14 @@ module.exports = {
 
     space: function (user, callback) {
         redis.get(space_key(user), callback);
+    },
+
+    set_space: function (user, value, callback) {
+        redis.set(space_key(user), value, callback);
+    },
+
+    strlen: function (user, key, callback) {
+        redis.strlen(file_key(user, key), callback);
     }
 }
 
