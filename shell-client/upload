@@ -3,8 +3,8 @@
 server_ip=`cat server_ip`
 tmp_token=/tmp/cs3_token
 
-if [[ "x$1" != "x" ]];then
-    token=$1
+if [[ "x$3" != "x" ]];then
+    token=$3
 else 
     if [ -f $tmp_token ]; then
         token=`cat $tmp_token`
@@ -13,7 +13,7 @@ else
 fi
 
 if [[ "x$token" = "x" ]]; then
-    echo "$0 <token> <file_path> <key>"
+    echo "$0 <key> <file_path> <token>"
     exit
 fi
 
@@ -25,8 +25,8 @@ else
     echo "missing upload path, using default path: $path"
 fi
 
-if [[ "x$3" != "x" ]];then
-    key=$3
+if [[ "x$1" != "x" ]];then
+    key=$1
 else
     echo "missing key, using default key: _key"
     key=_key

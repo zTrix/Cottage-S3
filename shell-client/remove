@@ -3,8 +3,8 @@
 server_ip=`cat server_ip`
 tmp_token=/tmp/cs3_token
 
-if [[ "x$1" != "x" ]];then
-    token=$1
+if [[ "x$2" != "x" ]];then
+    token=$2
 else
     if [ -f $tmp_token ]; then
         token=`cat $tmp_token`
@@ -13,12 +13,12 @@ else
 fi
 
 if [[ "x$token" = "x" ]]; then
-    echo "$0 <token> <key>"
+    echo "$0 <key> <token>"
     exit
 fi
 
-if [[ "x$2" != "x" ]];then
-    key=$2
+if [[ "x$1" != "x" ]];then
+    key=$1
 else
     echo "missing key, using default key: _key"
     key=_key

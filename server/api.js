@@ -97,7 +97,14 @@ var api = module.exports = {
             },
 
             function (err, data) {
-                Z.d(err, data);
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (data == 0) {
+                    callback(null, Err.INVALID_REQUEST('failed, no data for key "' + param.key + '"'));
+                    return;
+                }
                 callback(null, Err.NO_ERROR);
             }
         );
@@ -180,7 +187,7 @@ var api = module.exports = {
                 }
                 if (!buffer) {
                     callback(null, {
-                        header: Err.INVALID_REQUEST('no data found for key ' + headers.key),
+                        header: Err.INVALID_REQUEST('no data to fetch for key "' + headers.key + '"'),
                         body: new Buffer(0)
                     });
                     return;
