@@ -18,12 +18,16 @@ function user_key(u) {
     return 'user:' + u;
 }
 
+function space_key(u) {
+    return 'space:' + u;
+}
+
 function token_key(t) {
     return 'token:' + t;
 }
 
 function file_key(u, f) {
-    return user_key(u) + ':' + f;
+    return 'object' + ':' + u + ':' + f;
 }
 
 redis.on('error', function (err) {
@@ -61,12 +65,17 @@ module.exports = {
                 users_collection.insert({
                     'email': email,
                     'password': password
-                }, this);
+                }, this.parallel());
+                redis.set(space_key(email), 10240, this.parallel());
             },
 
-            function (err, rs) {
+            function (err, rs, redis_rs) {
                 if (err) {
                     callback(err);
+                    return;
+                }
+                if (!rs || !redis_rs) {
+                    callback(null, Err.INTERNAL_ERROR('internal error: create account failed'));
                     return;
                 }
                 return Err.NO_ERROR;
