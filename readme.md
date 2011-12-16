@@ -1,5 +1,49 @@
 # Cottage-S3 is a S3-like easy-to-use small demo for My SOA course
 
+# Installation and Test
+
+## Dependency
+
+**jdk**, **node** and **redis** is required, please install them first
+
+## Checkout the code
+
+    git clone git://github.com/zTrix/Cottage-S3.git
+    cd Cottage-S3
+    git submodule update --init
+
+## Run
+
+ - first, start redis. for example: `/etc/init.d/redis start`
+ - now cd to `server` dir, type this to run `node server.js`
+
+## Test
+
+We wrote a set of shell script to test the server using `curl`. You can run them in sequence to watch the result.
+    
+    cd shell-client
+    ./index
+    ./register
+    ./login
+    ./upload
+    ./space
+    ./fetch
+    ./remove
+    ./space
+
+Almost every shell test script accept command line arguments, such as token, key, file path.  Below shows the useage.
+
+    ./register <email> <password>
+    ./login <email> <password>
+    ./fetch <key> <file_path> <token>
+    ./upload <key> <file_path> <token>
+    ./space <token>
+    ./remove <key> <token>
+
+ - `key` means the key used to store or fetch file objects
+ - `token` means the token returned by `login`, you must provide the token in every account-related api request
+ - `file_path` the file path to upload from, or save to for fetch
+
 # API
 ## register
 **method**: POST
