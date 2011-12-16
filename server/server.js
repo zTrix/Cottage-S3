@@ -35,6 +35,13 @@ var handleRoute = function (req, res, handler, match) {
             res.write(JSON.stringify(ret, null, ''));
             res.end();
             Z.i('[ ' + code + ' ] ' + req.url);
+        } else if (!data) {
+            res.writeHead(500);
+            res.write(JSON.stringify({
+                err: -1,
+                msg: 'server generated no data'
+            }, null, ''));
+            res.end();
         } else {
             var header = {};
             var body;

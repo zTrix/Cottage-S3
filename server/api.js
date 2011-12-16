@@ -34,14 +34,6 @@ function api_wrapper(api) {
             
             api,
             
-            function (err, data) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return data;
-                }
-            },
-
             callback
         );
     };
