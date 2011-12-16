@@ -14,7 +14,7 @@ public class Toolkit {
     private static final String ERR = "err";
     private static final String MSG = "msg";
 
-    private static String token;
+    private static String token = null;
     private static String baseurl = null;
 
     public static void setServer(String ipOrDomain) {
@@ -23,11 +23,12 @@ public class Toolkit {
 
     /**
      *
-     * @return -1000, server not set, -1001 unknown error
+     * @return -1000, unknown error in sdk, -1001 server not set
      */
     public static int ping() {
         if (baseurl == null) {
-            return -1000;
+            Zlog.e("server not set");
+            return -1001;
         }
         int ret = 0;
         try {
@@ -37,17 +38,24 @@ public class Toolkit {
             ret = rs.getInt(ERR);
             if (ret != 0) {
                 Zlog.e(rs.getString(MSG));
+            } else {
+                Zlog.i(rs.getString(MSG));
             }
         } catch (Exception e) {
-            ret = -1001;
+            ret = -1000;
             Zlog.e(e);
         }
         return ret;
     }
 
+    /**
+     *
+     * @return -1000, unknown error in sdk, -1001 server not set
+     */
     public static int login(String email, String password) {
         if (baseurl == null) {
-            return -1000;
+            Zlog.e("server not set");
+            return -1001;
         }
         int ret = 0;
         try {
@@ -64,11 +72,58 @@ public class Toolkit {
 
             JSONObject rs = getJson(conn.getInputStream());
             ret = rs.getInt(ERR);
+
             if (ret != 0) {
                 Zlog.e(rs.getString(MSG));
+            } else {
+                token = rs.getString("token");
+                Zlog.i(rs.getString(MSG));
             }
         } catch (Exception e) {
-            ret = -1001;
+            ret = -1000;
+            Zlog.e(e);
+        }
+        return ret;
+    }
+
+    /**
+     *
+     * @return -1000, unknown error in sdk, -1001 server not set, -1002 token not set, please login first
+     */
+    public static int upload(String key, String content) {
+        if (baseurl == null) {
+            Zlog.e("server not set");
+            return -1001;
+        }
+        if (token == null) {
+            Zlog.e("token not set, please login first");
+            return -1002;
+        }
+        int ret = 0;
+        try {
+            URL url = new URL(getApiUrl("upload"));
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setRequestProperty("token", token);
+            conn.setRequestProperty("key", key);
+            DataOutputStream printout = new DataOutputStream(conn.getOutputStream ());
+            printout.writeBytes(content);
+            printout.flush();
+            printout.close();
+
+            JSONObject rs = getJson(conn.getInputStream());
+            ret = rs.getInt(ERR);
+            if (ret != 0) {
+                Zlog.e(ret, rs.getString(MSG));
+            } else {
+                Zlog.i("size", rs.getInt("size"));
+                Zlog.i("space", rs.getInt("space"));
+                Zlog.i("upload success");
+            }
+        } catch (Exception e) {
+            ret = -1000;
             Zlog.e(e);
         }
         return ret;

@@ -152,7 +152,15 @@ var api = module.exports = {
         new StreamBuffer(req);
         var headers = req.headers;
         if (!headers.token || !headers.key) {
-            callback(null, Err.INVALID_PARAM);
+            var rs = 'invalid paramters';
+            if (!headers.token && !headers.key) {
+                rs += ', both token and key not set';
+            } else if (!headers.token) {
+                rs += ', token not set';
+            } else {
+                rs += ', key not set';
+            }
+            callback(null, Err.INVALID_PARAM(rs));
             return;
         }
         var user_account;
