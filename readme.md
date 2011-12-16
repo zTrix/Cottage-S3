@@ -56,6 +56,19 @@
 
 **return**: data in HTTP response body
 
+## remove
+**method**: POST
+
+**param**: 
+
+ - token: access token returned by login
+ - key: the key to remove
+
+**return**:
+ - err:
+ - msg:
+ - space: the space left after remove operation
+
 # Error Code
 
  - `0` no error
