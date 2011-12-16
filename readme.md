@@ -65,9 +65,19 @@
  - key: the key to remove
 
 **return**:
+
  - err:
  - msg:
  - space: the space left after remove operation
+
+## space
+**method**: POST
+
+**param**:
+
+ - err:
+ - msg:
+ - space: the space left for this account, in bytes
 
 # Error Code
 

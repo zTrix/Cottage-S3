@@ -211,6 +211,48 @@ public class Toolkit {
        return ret;
    }
 
+   /**
+    *
+    * @return -1000, unknown error in sdk, -1001 server not set, >0, the space left
+    */
+    public static int space() {
+        if (baseurl == null) {
+            Zlog.e("server not set");
+            return -1001;
+        }
+        if (token == null) {
+            Zlog.e("token not set, please login first");
+            return -1002;
+        }
+        int ret = 0;
+        try {
+            URL url = new URL(getApiUrl("space"));
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            DataOutputStream printout = new DataOutputStream(conn.getOutputStream ());
+            String content = "token=" + URLEncoder.encode (token);
+            printout.writeBytes (content);
+            printout.flush ();
+            printout.close ();
+
+            JSONObject rs = getJson(conn.getInputStream());
+            int err = rs.getInt(ERR);
+
+            if (err != 0) {
+                Zlog.e(err, rs.getString(MSG));
+            } else {
+                Zlog.i("left space: " + rs.getInt("space"));
+                Zlog.i(rs.getString(MSG));
+            }
+        } catch (Exception e) {
+            ret = -1000;
+            Zlog.e(e);
+        }
+        return ret;
+    }
+
     private static String getApiUrl(String api) {
         return baseurl + "api/" + api;
     }

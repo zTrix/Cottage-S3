@@ -15,10 +15,20 @@ public class Test {
         Zlog.i("---- test login onto server");
         Toolkit.login("test@test.com", "password");
 
+
+        newline();
+        Zlog.i("---- test space");
+        Toolkit.space();
+
         newline();
         String key = "test_upload_key", content = "Test upload content";
         Zlog.i("---- test upload, key = " + key, "content = " + content);
         Toolkit.upload(key, content);
+
+
+        newline();
+        Zlog.i("---- test space");
+        Toolkit.space();
 
         newline();
         Zlog.i("---- test fetch, key = " + key);
@@ -32,6 +42,22 @@ public class Test {
         newline();
         Zlog.i("---- test remove, key = " + key);
         Toolkit.remove(key);
+
+        newline();
+        Zlog.i("---- test space");
+        Toolkit.space();
+
+        newline();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 20000; i++) {
+            sb.append(Character.toChars((int)(Math.random() * 128)));
+        }
+        Zlog.i("---- test upload limit exceeds, key = " + key);
+        Toolkit.upload(key, sb.toString());
+
+        newline();
+        Zlog.i("---- test space");
+        Toolkit.space();
     }
 
     private static void newline() {
