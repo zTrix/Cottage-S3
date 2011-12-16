@@ -41,6 +41,21 @@
  - err:
  - msg:
 
+## fetch
+**method**: POST
+
+**param**: param should be set in HTTP header
+
+ - token: access token returned by login
+ - key: the key to fetch object
+
+**return**: status in HTTP header
+
+ - err:
+ - msg: 
+
+**return**: data in HTTP response body
+
 # Error Code
 
  - `0` no error

@@ -1,4 +1,5 @@
 import org.cs3.Toolkit;
+import org.cs3.Zlog;
 
 
 public class Test {
@@ -10,6 +11,14 @@ public class Test {
 
         Toolkit.login("test@test.com", "password");
 
-        Toolkit.upload("test_upload_key", "Test upload content");
+        String key = "test_upload_key";
+        Toolkit.upload(key, "Test upload content");
+
+        String result = Toolkit.fetch(key);
+        if (result != null) {
+            Zlog.i("fetched content: " + result);
+        } else {
+            Zlog.e("fetch content for key " + key + " failed");
+        }
     }
 }

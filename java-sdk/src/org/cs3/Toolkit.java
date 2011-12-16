@@ -129,6 +129,46 @@ public class Toolkit {
         return ret;
     }
 
+    public static String fetch(String key) {
+        if (baseurl == null) {
+            Zlog.e("server not set");
+            return null;
+        }
+        if (token == null) {
+            Zlog.e("token not set, please login first");
+            return null;
+        }
+        StringBuilder ret = new StringBuilder();
+        try {
+            URL url = new URL(getApiUrl("fetch"));
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setRequestProperty("token", token);
+            conn.setRequestProperty("key", key);
+
+            int err = Integer.valueOf(conn.getHeaderField(ERR));
+            String msg = conn.getHeaderField(MSG);
+
+            if (err != 0) {
+                Zlog.e(err, msg);
+            } else {
+                Zlog.i("fetch success");
+            }
+
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String tmp;
+
+            while((tmp = rd.readLine()) != null) {
+                ret.append(tmp);
+            }
+        } catch (Exception e) {
+            Zlog.e(e);
+            return null;
+        }
+        return ret.toString();
+    }
+
     private static String getApiUrl(String api) {
         return baseurl + "api/" + api;
     }
