@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="Test-CS3" default="compile" basedir=".">
+    <property name="src.dir" value="src" />
+    <property name="bin.dir" value="bin" />
+
+    <target name="compile">
+        <javac srcdir="${src.dir}" destdir="${bin.dir}" includeantruntime="false">
+        </javac>
+    </target>
+</project>
