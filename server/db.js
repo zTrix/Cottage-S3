@@ -124,6 +124,10 @@ module.exports = {
 
     remove: function(user, key, callback) {
         redis.del(file_key(user, key), callback);
+    },
+
+    space: function (user, callback) {
+        redis.get(space_key(user), callback);
     }
 }
 

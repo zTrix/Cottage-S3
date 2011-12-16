@@ -19,6 +19,7 @@ addRoute(/^\/api\/login$/, api.login);
 addRoute(/^\/api\/upload[?.*]?$/, api.upload);
 addRoute(/^\/api\/fetch[?.*]?$/, api.fetch);
 addRoute(/^\/api\/remove[?.*]?$/, api.remove);
+addRoute(/^\/api\/space[?.*]?$/, api.space);
 addRoute(/^\/$/, api.index);
 addRoute(/^\/(.*)$/, api.notfound);
 

@@ -60,6 +60,40 @@ var api = module.exports = {
         }
     }),
 
+    space: api_wrapper(function (err, param) {
+        if (err) {
+            this(err);
+            return;
+        }
+        if (!param.token) {
+            return Err.INVALID_PARAM('token required to get space info');
+        }
+        var callback = this;
+        Step(
+            function () {
+                Db.check_token(param.token, this);
+            },
+
+            function (err, email) {
+                if (!email) {
+                    callback(null, Err.INVALID_PARAM('wrong token'));
+                    return;
+                }
+                Db.space(email, this);
+            },
+
+            function (err, space_left) {
+                return {
+                    err: Err.NO_ERROR.err,
+                    msg: 'success',
+                    space: space_left
+                }
+            },
+
+            callback
+        );
+    }),
+
     remove: api_wrapper(function (err, param) {
         if (err) {
             this(err);
