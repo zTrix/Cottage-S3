@@ -2,11 +2,19 @@
 
 server_ip=`cat server_ip`
 
-tmp_header=/tmp/cs3_tmp_header
+tmp_header=/tmp/cs3_header
+tmp_token=/tmp/cs3_token
 
 if [[ "x$1" != "x" ]];then
     token=$1
 else
+    if [ -f $tmp_token ]; then
+        token=`cat $tmp_token`
+        echo "missing token, using saved token: $token"
+    fi
+fi
+
+if [[ "x$token" = "x" ]]; then
     echo "$0 <token> <key> <file_path>"
     exit
 fi

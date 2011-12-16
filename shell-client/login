@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 server_ip=`cat server_ip`
 
@@ -17,4 +17,16 @@ echo login account: $email, $password
 
 echo
 
-curl -d email=$email -d password=$password http://$server_ip/api/login 2>/dev/null | node parse_json.js
+next_is_token=0
+
+IFS=$'\n'
+for i in `curl -d email=$email -d password=$password http://$server_ip/api/login 2>/dev/null | node parse_json.js`;do 
+    echo $i
+    if [[ $next_is_token = 1 ]];then
+        echo ${i/    /} > /tmp/cs3_token
+        next_is_token=0
+    fi
+    if [[ $i = "token:" ]]; then
+        next_is_token=1
+    fi
+done
