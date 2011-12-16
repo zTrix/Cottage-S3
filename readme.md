@@ -4,7 +4,9 @@
 
 ## Dependency
 
-**jdk**, **node** and **redis** is required, please install them first
+**[node](http://nodejs.org)** and **[redis](http://redis.io)** is required to run the server, please install them first
+
+**JDK** is required to use the `java-sdk` for Cottage-S3.
 
 ## Checkout the code
 
