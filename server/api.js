@@ -119,10 +119,11 @@ var api = module.exports = {
                     return;
                 }
                 user_account = email;
-                Db.remove(email, param.key, this);
+                Db.strlen(email, param.key, this.parallel());
+                Db.remove(email, param.key, this.parallel());
             },
 
-            function (err, data) {
+            function (err, size, data) {
                 if (err) {
                     callback(err);
                     return;
@@ -131,8 +132,18 @@ var api = module.exports = {
                     callback(null, Err.INVALID_REQUEST('failed, no data for key "' + param.key + '"'));
                     return;
                 }
-                callback(null, Err.NO_ERROR);
-            }
+                Db.incr_space(user_account, +size, this);
+            },
+
+            function (err, new_space_size) {
+                return {
+                    err: Err.NO_ERROR.err,
+                    msg: 'success',
+                    space: new_space_size
+                }
+            },
+
+            callback
         );
     }),
 

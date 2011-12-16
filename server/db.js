@@ -133,6 +133,14 @@ module.exports = {
         redis.set(space_key(user), value, callback);
     },
 
+    decr_space: function (user, value, callback) {
+        redis.decrby(space_key(user), value, callback);
+    },
+
+    incr_space: function (user, value, callback) {
+        redis.incrby(space_key(user), value, callback);
+    },
+
     strlen: function (user, key, callback) {
         redis.strlen(file_key(user, key), callback);
     }
